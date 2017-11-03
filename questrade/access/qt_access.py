@@ -39,8 +39,8 @@ class QTAccess:
 
     @classmethod
     def from_json(cls, json):
-        return cls(access_token=json.get("access_token"),
-                   token_type=json.get("token_type"),
-                   expires_in=cast(json.get("expires_in"), int),
-                   refresh_token=json.get("refresh_token"),
-                   api_server=json.get("api_server"))
+        return cls(access_token=json.get('access_token'),
+                   token_type=json.get('token_type'),
+                   expires_in=cast(json.get('expires_in'), int),
+                   refresh_token=json.get('refresh_token'),
+                   api_server=json.get('api_server'))

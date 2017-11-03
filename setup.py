@@ -12,7 +12,7 @@ install_requires = [
 setup(
     name='questrade',
     version=__version__,
-    author="Cameron Curry",
+    author='Cameron Curry',
     description='Python Client for Questrade API',
     install_requires=install_requires,
     packages=find_packages(),

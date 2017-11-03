@@ -21,7 +21,7 @@ class TestQTAccountService(TestCase):
                                  refresh_token='aSBe7wAAdx88QTbwut0tiu3SYic3ox8F',
                                  api_server='https://api01.iq.questrade.com/')
 
-    @patch("requests.get")
+    @patch('requests.get')
     def test_accounts(self, mock):
         mock.return_value.ok = True
         mock.return_value.status_code = 200
@@ -60,9 +60,9 @@ class TestQTAccountService(TestCase):
             with self.subTest(result=result):
                 self.assertEqual(result, expected)
 
-        mock.assert_called_with("https://api01.iq.questrade.com/v1/accounts",
+        mock.assert_called_with('https://api01.iq.questrade.com/v1/accounts',
                                 params=None,
-                                headers={"Authorization": 'Bearer C3lTUKuNQrAAmSD/TPjuV/HI7aNrAwDp'})
+                                headers={'Authorization': 'Bearer C3lTUKuNQrAAmSD/TPjuV/HI7aNrAwDp'})
 
     @patch('requests.get')
     def test_access_token_expired(self, mock):

@@ -47,4 +47,4 @@ class TestQtAccessService(TestCase):
         mock.return_value.headers = {'Content-Type': 'text/html'}
 
         with self.assertRaises(QTError):
-            QTAccessService.refresh("aSBe7wAAdx88QTbwut0tiu3SYic3ox8F")
+            QTAccessService.refresh('aSBe7wAAdx88QTbwut0tiu3SYic3ox8F')
