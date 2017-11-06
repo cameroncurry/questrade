@@ -5,7 +5,9 @@
 import requests
 
 from .error import QTError
+from .error import QTGeneralError
 from .error import QTTokenInvalidError
+from .error import QTInvalidEndpointError
 
 
 def get(url, params=None, **kwargs):
@@ -32,5 +34,9 @@ def _throw_qt_exception(response):
 
         if response.status_code == 401 and qt_code == 1017:
             raise QTTokenInvalidError(response.status_code, qt_code, message)
+        elif response.status_code == 404 and qt_code == 1001:
+            raise QTInvalidEndpointError(response.status_code, qt_code, message)
+        else:
+            raise QTGeneralError(response.status_code, qt_code, message)
     else:
         raise QTError(response.status_code, response.text)

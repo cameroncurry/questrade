@@ -17,3 +17,7 @@ class QTGeneralError(Exception):
 
 class QTTokenInvalidError(QTGeneralError):
     pass
+
+
+class QTInvalidEndpointError(QTGeneralError):
+    pass
