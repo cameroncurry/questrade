@@ -2,11 +2,13 @@
 # Copyright Cameron Curry (c) 2017
 #
 
+from datetime import datetime, timezone, timedelta
 from unittest import TestCase
 from unittest.mock import patch
 
 from questrade.access import QTAccess
 from questrade.account import QTAccount
+from questrade.account import QTActivity
 from questrade.account import QTAccountService
 from questrade.common.error import QTTokenInvalidError
 
@@ -21,6 +23,8 @@ class TestQTAccountService(TestCase):
                                  refresh_token='aSBe7wAAdx88QTbwut0tiu3SYic3ox8F',
                                  api_server='https://api01.iq.questrade.com/')
 
+        cls.account_service = QTAccountService(cls.qt_access)
+
     @patch('requests.get')
     def test_accounts(self, mock):
         mock.return_value.ok = True
@@ -29,7 +33,7 @@ class TestQTAccountService(TestCase):
             'accounts': [
                 {
                     'type': 'Margin',
-                    'number': '26598145',
+                    'number': 26598145,
                     'status': 'Active',
                     'isPrimary': 'true',
                     'isBilling': 'true',
@@ -41,12 +45,9 @@ class TestQTAccountService(TestCase):
             'Content-Type': 'application/json; charset=utf-8'
         }
 
-        account_service = QTAccountService(self.qt_access)
-        accounts = account_service.accounts()
-
+        accounts = self.account_service.accounts()
         self.assertEqual(len(accounts), 1)
         self.assertIsInstance(accounts[0], QTAccount)
-
         expected_accounts = (
             (accounts[0].account_type, 'Margin'),
             (accounts[0].number, 26598145),
@@ -55,7 +56,6 @@ class TestQTAccountService(TestCase):
             (accounts[0].is_billing, True),
             (accounts[0].client_account_type, 'Individual')
         )
-
         for result, expected in expected_accounts:
             with self.subTest(result=result):
                 self.assertEqual(result, expected)
@@ -74,7 +74,63 @@ class TestQTAccountService(TestCase):
         }
         mock.return_value.headers = {'Content-Type': 'application/json; charset=utf-8'}
 
-        account_service = QTAccountService(self.qt_access)
-
         with self.assertRaises(QTTokenInvalidError):
-            account_service.accounts()
+            self.account_service.accounts()
+
+    @patch('requests.get')
+    def test_activities(self, mock):
+        mock.return_value.ok = True
+        mock.return_value.status_code = 200
+        mock.return_value.json.return_value = {
+            'activities': [
+                {
+                    'tradeDate': '2011-02-16T00:00:00.000000-05:00',
+                    'transactionDate': '2011-02-16T00:00:00.000000-05:00',
+                    'settlementDate': '2011-02-16T00:00:00.000000-05:00',
+                    'action': '',
+                    'symbol': '',
+                    'symbolId': 0,
+                    'description': 'INT FR 02/04 THRU02/15@ 4 3/4%BAL  205,006   AVBAL  204,966 ',
+                    'currency': 'USD',
+                    'quantity': 0,
+                    'price': 0,
+                    'grossAmount': 0,
+                    'commission': 0,
+                    'netAmount': -320.08,
+                    'type': 'Interest'
+                }
+            ]
+        }
+        mock.return_value.headers = {'Content-Type': 'application/json; charset=utf-8'}
+
+        account_number = 26598145
+        start = datetime(2011, 2, 1, tzinfo=timezone(timedelta(hours=-5)))
+        end = datetime(2011, 2, 28, tzinfo=timezone(timedelta(hours=-5)))
+
+        qt_activities = self.account_service.activities(account_number, start, end)
+        self.assertEqual(len(qt_activities), 1)
+        self.assertIsInstance(qt_activities[0], QTActivity)
+        expected_activities = (
+            (qt_activities[0].trade_date, datetime(2011, 2, 16, tzinfo=timezone(timedelta(hours=-5)))),
+            (qt_activities[0].transaction_date, datetime(2011, 2, 16, tzinfo=timezone(timedelta(hours=-5)))),
+            (qt_activities[0].settlement_date, datetime(2011, 2, 16, tzinfo=timezone(timedelta(hours=-5)))),
+            (qt_activities[0].action, ''),
+            (qt_activities[0].symbol, ''),
+            (qt_activities[0].symbol_id, 0),
+            (qt_activities[0].description, 'INT FR 02/04 THRU02/15@ 4 3/4%BAL  205,006   AVBAL  204,966 '),
+            (qt_activities[0].currency, 'USD'),
+            (qt_activities[0].quantity, 0),
+            (qt_activities[0].price, 0.0),
+            (qt_activities[0].gross_amount, 0.0),
+            (qt_activities[0].commission, 0.0),
+            (qt_activities[0].net_amount, -320.08),
+            (qt_activities[0].activity_type, 'Interest')
+        )
+        for result, expected in expected_activities:
+            with self.subTest(result=result):
+                self.assertEqual(result, expected)
+
+        mock.assert_called_with('https://api01.iq.questrade.com/v1/accounts/26598145/activities',
+                                params={'startTime': '2011-02-01T00:00:00-05:00',
+                                        'endTime': '2011-02-28T00:00:00-05:00'},
+                                headers={'Authorization': 'Bearer C3lTUKuNQrAAmSD/TPjuV/HI7aNrAwDp'})
