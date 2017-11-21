@@ -13,7 +13,7 @@ setup(
     name='questrade',
     version=__version__,
     author='Cameron Curry',
-    description='Python Client for Questrade API',
+    description='Python Client for the Questrade API',
     install_requires=install_requires,
     packages=find_packages(),
     test_suite='tests'
