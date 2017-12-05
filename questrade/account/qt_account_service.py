@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 from ..common import QTService
 from .qt_account import QTAccount
+from .qt_balance import QTBalance
 from .qt_activity import QTActivity
 
 
@@ -15,6 +16,15 @@ class QTAccountService(QTService):
         r = self._get('v1/accounts')
         accounts_json = r.json()
         return [QTAccount.from_json(account) for account in accounts_json['accounts']]
+
+    def balances(self, account_number):
+        r = self._get('v1/accounts/{}/balances'.format(account_number))
+        balances_json = r.json()
+        return [
+            QTBalance.from_json(balance_type, balance_json)
+            for balance_type in QTBalance.BalanceType
+            for balance_json in balances_json.get(balance_type.value)
+        ]
 
     def activities(self, account_number, start_datetime: datetime, end_datetime: datetime):
         if start_datetime.tzinfo is None:
