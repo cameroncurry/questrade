@@ -7,10 +7,7 @@ from datetime import datetime
 
 def cast(value, to_type):
     try:
-        if to_type == bool:
-            return {'true': True, 'false': False}[value]
-        else:
-            return to_type(value)
+        return to_type(value)
     except ValueError:
         return None
 

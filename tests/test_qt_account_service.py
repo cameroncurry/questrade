@@ -36,8 +36,8 @@ class TestQTAccountService(TestCase):
                     'type': 'Margin',
                     'number': 26598145,
                     'status': 'Active',
-                    'isPrimary': 'true',
-                    'isBilling': 'true',
+                    'isPrimary': True,
+                    'isBilling': True,
                     'clientAccountType': 'Individual'
                 }
             ]
@@ -87,7 +87,7 @@ class TestQTAccountService(TestCase):
             'totalEquity': 249988.7,
             'buyingPower': 496367.2,
             'maintenanceExcess': 248183.6,
-            'isRealTime': 'false'
+            'isRealTime': False
         }
         mockUSD = {
             'currency': 'USD',
@@ -96,7 +96,7 @@ class TestQTAccountService(TestCase):
             'totalEquity': 249988.7,
             'buyingPower': 496367.2,
             'maintenanceExcess': 248183.6,
-            'isRealTime': 'false'
+            'isRealTime': False
         }
         mock.return_value.ok = True
         mock.return_value.status_code = 200
